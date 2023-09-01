@@ -45,6 +45,17 @@ export const messageYjsUpdate = 2
  * @param {encoding.Encoder} encoder
  * @param {Y.Doc} doc
  */
+export const writeSyncStep1HTTP = (encoder, doc) => {
+  const sv = Y.encodeStateVector(doc)
+  encoding.writeVarUint8Array(encoder, sv)
+}
+
+/**
+ * Create a sync step 1 message based on the state of the current shared document.
+ *
+ * @param {encoding.Encoder} encoder
+ * @param {Y.Doc} doc
+ */
 export const writeSyncStep1 = (encoder, doc) => {
   encoding.writeVarUint(encoder, messageYjsSyncStep1)
   const sv = Y.encodeStateVector(doc)
@@ -56,10 +67,29 @@ export const writeSyncStep1 = (encoder, doc) => {
  * @param {Y.Doc} doc
  * @param {Uint8Array} [encodedStateVector]
  */
+export const writeSyncStep2HTTP = (encoder, doc, encodedStateVector) => {
+  encoding.writeVarUint8Array(encoder, Y.encodeStateAsUpdate(doc, encodedStateVector))
+}
+
+/**
+ * @param {encoding.Encoder} encoder
+ * @param {Y.Doc} doc
+ * @param {Uint8Array} [encodedStateVector]
+ */
 export const writeSyncStep2 = (encoder, doc, encodedStateVector) => {
   encoding.writeVarUint(encoder, messageYjsSyncStep2)
   encoding.writeVarUint8Array(encoder, Y.encodeStateAsUpdate(doc, encodedStateVector))
 }
+
+/**
+ * Read SyncStep1 message and reply with SyncStep2.
+ *
+ * @param {decoding.Decoder} decoder The reply to the received message
+ * @param {encoding.Encoder} encoder The received message
+ * @param {Y.Doc} doc
+ */
+export const readSyncStep1HTTP = (decoder, encoder, doc) =>
+  writeSyncStep2HTTP(encoder, doc, decoding.readVarUint8Array(decoder))
 
 /**
  * Read SyncStep1 message and reply with SyncStep2.
