@@ -40,14 +40,14 @@ export const messageYjsSyncStep2 = 1
 export const messageYjsUpdate = 2
 
 /**
- * Create a sync step 1 message based on the state of the current shared document.
+ * Encode the state of the document as a single update
  *
  * @param {encoding.Encoder} encoder
  * @param {Y.Doc} doc
  */
 export const writeSyncStep1HTTP = (encoder, doc) => {
-  const sv = Y.encodeStateVector(doc)
-  encoding.writeVarUint8Array(encoder, sv)
+  const documentStateAsSingleUpdate = Y.encodeStateAsUpdate(doc)
+  encoding.writeVarUint8Array(encoder, documentStateAsSingleUpdate)
 }
 
 /**
@@ -84,12 +84,12 @@ export const writeSyncStep2 = (encoder, doc, encodedStateVector) => {
 /**
  * Read SyncStep1 message and reply with SyncStep2.
  *
- * @param {decoding.Decoder} decoder The reply to the received message
+ * @param {Uint8Array} encodedStateVector
  * @param {encoding.Encoder} encoder The received message
  * @param {Y.Doc} doc
  */
-export const readSyncStep1HTTP = (decoder, encoder, doc) =>
-  writeSyncStep2HTTP(encoder, doc, decoding.readVarUint8Array(decoder))
+export const readSyncStep1HTTP = (encodedStateVector, encoder, doc) =>
+  writeSyncStep2HTTP(encoder, doc, encodedStateVector)
 
 /**
  * Read SyncStep1 message and reply with SyncStep2.
