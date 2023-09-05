@@ -101,6 +101,22 @@ export const readSyncStep1HTTP = (encodedStateVector, encoder, doc) =>
 export const readSyncStep1 = (decoder, encoder, doc) =>
   writeSyncStep2(encoder, doc, decoding.readVarUint8Array(decoder))
 
+
+/**
+ * Read and apply Structs and then DeleteStore to a y instance.
+ *
+ * @param {Uint8Array} update
+ * @param {Y.Doc} doc
+ * @param {any} transactionOrigin
+ */
+export const readSyncStep2HTTP = (update, doc, transactionOrigin) => {
+  try {
+    Y.applyUpdate(doc, update, transactionOrigin)
+  } catch (error) {
+    console.error('Caught error while handling a Yjs update', error)
+  }
+}
+
 /**
  * Read and apply Structs and then DeleteStore to a y instance.
  *
